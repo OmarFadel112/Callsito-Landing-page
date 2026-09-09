@@ -1,4 +1,4 @@
-# Guardian Agent — Zero-Trust AI Execution Gateway (Mockup)
+# Callsito — Zero-Trust AI Execution Gateway (Mockup)
 
 A fully local, mocked frontend prototype. No backend, no network calls,
 no environment variables — everything is simulated in the browser.
