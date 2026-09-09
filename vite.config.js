@@ -6,5 +6,5 @@ import react from "@vitejs/plugin-react";
 // "<your-username>.github.io", leave base as "/".
 export default defineConfig({
   plugins: [react()],
-  base: "/guardian-agent-demo/",
+  base: "/Callsito-Landing-page/",
 });
