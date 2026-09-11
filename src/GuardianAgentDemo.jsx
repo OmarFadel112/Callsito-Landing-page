@@ -51,7 +51,7 @@ const GRADIENT = {
 };
 
 const FONT_DISPLAY = "'Space Grotesk', 'Segoe UI', sans-serif";
-const FONT_BRAND = "'Unbounded', 'Space Grotesk', sans-serif";
+const FONT_BRAND = "'Cinzel', 'Space Grotesk', serif";
 const FONT_MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
 
 /* ------------------------------------------------------------------ */
@@ -478,6 +478,126 @@ function Field({ label, value, mono }) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  BRAND LOGO — circular mark with orbiting rings around the moon     */
+/* ------------------------------------------------------------------ */
+
+function CallistoMark({ size = 200 }) {
+  const s = size;
+  const c = s / 2;
+
+  return (
+    <div className="callisto-mark relative mx-auto" style={{ width: s, height: s }}>
+      {/* outer soft glow behind everything */}
+      <div
+        aria-hidden="true"
+        className="callisto-halo absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(96,165,250,0.35) 0%, rgba(37,99,235,0.18) 42%, transparent 68%)",
+          filter: "blur(26px)",
+        }}
+      />
+
+      {/* orbiting rings — rendered as SVG so we can dash + rotate them */}
+      <svg
+        viewBox="0 0 200 200"
+        width={s}
+        height={s}
+        className="absolute inset-0"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#8FC1FF" stopOpacity="0.9" />
+            <stop offset="55%" stopColor="#4A90D9" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#1E3A6E" stopOpacity="0.15" />
+          </linearGradient>
+        </defs>
+
+        {/* outer ring — slow rotation, faint dashes */}
+        <g className="ring-outer" style={{ transformOrigin: "100px 100px" }}>
+          <circle cx="100" cy="100" r="88" fill="none" stroke="url(#ringGrad)" strokeWidth="1" opacity="0.55" />
+          <circle
+            cx="100"
+            cy="100"
+            r="80"
+            fill="none"
+            stroke="#6FA8FF"
+            strokeWidth="0.7"
+            strokeDasharray="1.5 5"
+            opacity="0.6"
+          />
+        </g>
+
+        {/* mid ring — opposite rotation, orbiting dots */}
+        <g className="ring-mid" style={{ transformOrigin: "100px 100px" }}>
+          <circle
+            cx="100"
+            cy="100"
+            r="66"
+            fill="none"
+            stroke="#4A90D9"
+            strokeWidth="0.6"
+            strokeDasharray="2 6"
+            opacity="0.5"
+          />
+          <circle cx="100" cy="34" r="2.2" fill="#8FC1FF" opacity="0.9" />
+          <circle cx="166" cy="100" r="1.8" fill="#8FC1FF" opacity="0.75" />
+          <circle cx="100" cy="166" r="1.6" fill="#8FC1FF" opacity="0.6" />
+          <circle cx="34" cy="100" r="1.4" fill="#8FC1FF" opacity="0.5" />
+        </g>
+      </svg>
+
+      {/* the moon / icon itself — clipped into a circle so no box shows */}
+      <div
+        className="callisto-core absolute rounded-full overflow-hidden"
+        style={{
+          top: "18%",
+          left: "18%",
+          width: "64%",
+          height: "64%",
+          boxShadow:
+            "0 0 28px rgba(37,99,235,0.55), inset 0 0 20px rgba(143,193,255,0.25)",
+        }}
+      >
+        <img
+          src={callistoIcon}
+          alt="Callisto"
+          draggable="false"
+          className="h-full w-full select-none object-cover"
+          style={{
+            transform: "scale(1.35)",
+            filter: "brightness(1.05) saturate(1.1)",
+          }}
+        />
+        {/* subtle inner ring light, the "shine" on the moon */}
+        <div
+          aria-hidden="true"
+          className="callisto-shine pointer-events-none absolute inset-0 rounded-full"
+        />
+      </div>
+
+      {/* tiny center dot — the beacon at the heart of the mark */}
+      <div
+        aria-hidden="true"
+        className="callisto-dot absolute"
+        style={{
+          top: "50%",
+          left: "50%",
+          width: 6,
+          height: 6,
+          marginTop: -3,
+          marginLeft: -3,
+          borderRadius: "9999px",
+          background: "#BFD9FF",
+          boxShadow: "0 0 10px 2px rgba(143,193,255,0.9)",
+        }}
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  EXECUTION FLOW GRAPH                                               */
 /* ------------------------------------------------------------------ */
 
@@ -501,7 +621,6 @@ function ExecutionFlowGraph({ agent, tool, checks, animPhase, onSelectStage, sel
 
   const stagePositions = STAGES.map((s, i) => ({ ...s, x: stageX, y: stageStartY + i * stageGap }));
 
-  // find first failed / not-reached index to know where flow terminates
   const firstFailedIdx = STAGES.findIndex((s) => checks[s.key] === "failed");
   const allPassed = STAGES.every((s) => checks[s.key] === "passed");
 
@@ -537,7 +656,6 @@ function ExecutionFlowGraph({ agent, tool, checks, animPhase, onSelectStage, sel
           </marker>
         </defs>
 
-        {/* agent -> stage 1 */}
         <path
           d={`M ${agentX + 34} ${agentY} C ${agentX + 120} ${agentY}, ${stageX - 110} ${stagePositions[0].y}, ${
             stageX - 34
@@ -550,7 +668,6 @@ function ExecutionFlowGraph({ agent, tool, checks, animPhase, onSelectStage, sel
           opacity={agentToFirstColor === COLORS.notReached ? 0.35 : 0.9}
         />
 
-        {/* stage -> stage connectors */}
         {stagePositions.slice(0, -1).map((s, i) => {
           const next = stagePositions[i + 1];
           const fromStatus = checks[s.key];
@@ -576,7 +693,6 @@ function ExecutionFlowGraph({ agent, tool, checks, animPhase, onSelectStage, sel
           );
         })}
 
-        {/* last stage -> action */}
         <path
           d={`M ${stageX + 34} ${stagePositions[4].y} C ${stageX + 130} ${stagePositions[4].y}, ${
             actionX - 130
@@ -589,7 +705,6 @@ function ExecutionFlowGraph({ agent, tool, checks, animPhase, onSelectStage, sel
           opacity={lastToActionColor === COLORS.notReached ? 0.3 : 0.9}
         />
 
-        {/* Agent node */}
         <g>
           <circle cx={agentX} cy={agentY} r="30" fill={COLORS.panel} stroke={COLORS.idle} strokeWidth="1.5" />
           <foreignObject x={agentX - 12} y={agentY - 12} width="24" height="24">
@@ -603,7 +718,6 @@ function ExecutionFlowGraph({ agent, tool, checks, animPhase, onSelectStage, sel
           </text>
         </g>
 
-        {/* Stage nodes */}
         {stagePositions.map((s) => {
           const status = checks[s.key];
           const color = nodeColor(status);
@@ -645,7 +759,6 @@ function ExecutionFlowGraph({ agent, tool, checks, animPhase, onSelectStage, sel
           );
         })}
 
-        {/* Action node */}
         <g opacity={allPassed ? 1 : 0.45}>
           <circle cx={actionX} cy={actionY} r="30" fill={COLORS.panel} stroke={allPassed ? COLORS.allow : COLORS.notReached} strokeWidth="1.5" />
           <foreignObject x={actionX - 11} y={actionY - 11} width="22" height="22">
@@ -656,7 +769,6 @@ function ExecutionFlowGraph({ agent, tool, checks, animPhase, onSelectStage, sel
           </text>
         </g>
 
-        {/* failure marker */}
         {firstFailedIdx !== -1 && (
           <text
             x={stagePositions[firstFailedIdx].x}
@@ -1038,7 +1150,7 @@ export default function GuardianAgentDemo() {
   const [animatedChecks, setAnimatedChecks] = useState(null);
   const [activeScenario, setActiveScenario] = useState(null);
 
-  const requestCounts = useRef({}); // per-agent in-memory rate counter
+  const requestCounts = useRef({});
   const timeouts = useRef([]);
 
   const agent = useMemo(() => AGENTS.find((a) => a.id === agentId), [agentId]);
@@ -1062,7 +1174,6 @@ export default function GuardianAgentDemo() {
     const finalResult = simulateAgentExecution(agent, requestText, explicitOverride, priorCount);
     requestCounts.current[agentId] = priorCount + 1;
 
-    // step through stages sequentially for the animation
     let delay = 0;
     const STEP = 240;
     for (let i = 0; i < STAGES.length; i++) {
@@ -1109,23 +1220,90 @@ export default function GuardianAgentDemo() {
       style={{ background: COLORS.bg, color: COLORS.text, fontFamily: FONT_DISPLAY }}
     >
       <style>{`
+        /* ---- animated deep-space gradient backdrop ---- */
+        .callisto-bg {
+          position: fixed;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+          background:
+            radial-gradient(1200px 800px at 20% 10%, rgba(37,99,235,0.18), transparent 60%),
+            radial-gradient(1000px 700px at 85% 25%, rgba(30,58,110,0.35), transparent 65%),
+            radial-gradient(900px 900px at 50% 100%, rgba(96,165,250,0.14), transparent 70%),
+            linear-gradient(160deg, #070C18 0%, #080F1E 40%, #060B17 100%);
+          background-size: 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+          background-position: 0% 0%, 100% 0%, 50% 100%, 0 0;
+          animation: bgDrift 40s ease-in-out infinite;
+        }
+        @keyframes bgDrift {
+          0%   { background-position: 0% 0%,   100% 0%,   50% 100%, 0 0; }
+          33%  { background-position: 30% 20%, 70% 10%,  40% 80%,  0 0; }
+          66%  { background-position: 20% 40%, 80% 30%,  60% 70%,  0 0; }
+          100% { background-position: 0% 0%,   100% 0%,   50% 100%, 0 0; }
+        }
+
+        /* ---- callisto brand mark ---- */
+        .callisto-mark { isolation: isolate; }
+        .callisto-halo { animation: haloBreathe 7s ease-in-out infinite; }
+        @keyframes haloBreathe {
+          0%, 100% { opacity: 0.75; transform: scale(1); }
+          50%      { opacity: 1;    transform: scale(1.08); }
+        }
+        .ring-outer { animation: spin 60s linear infinite; }
+        .ring-mid   { animation: spin 38s linear infinite reverse; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .callisto-core {
+          animation: coreBreathe 6s ease-in-out infinite;
+        }
+        @keyframes coreBreathe {
+          0%, 100% { box-shadow: 0 0 26px rgba(37,99,235,0.5), inset 0 0 18px rgba(143,193,255,0.2); }
+          50%      { box-shadow: 0 0 38px rgba(59,130,246,0.7), inset 0 0 24px rgba(143,193,255,0.35); }
+        }
+
+        /* soft shine sweeping across the moon, subtle */
+        .callisto-shine {
+          background: linear-gradient(
+            115deg,
+            transparent 35%,
+            rgba(255,255,255,0.28) 48%,
+            rgba(255,255,255,0.28) 52%,
+            transparent 65%
+          );
+          background-size: 250% 250%;
+          animation: shineSweep 7s ease-in-out infinite;
+          mix-blend-mode: screen;
+          border-radius: 9999px;
+        }
+        @keyframes shineSweep {
+          0%   { background-position: 200% 200%; }
+          40%  { background-position: -100% -100%; }
+          100% { background-position: -100% -100%; }
+        }
+
+        .callisto-dot { animation: dotPulse 3.5s ease-in-out infinite; }
+        @keyframes dotPulse {
+          0%, 100% { opacity: 0.7; transform: scale(1); }
+          50%      { opacity: 1;   transform: scale(1.25); }
+        }
+
+        /* ---- wordmark shimmer ---- */
+        @keyframes textShine { to { background-position: -260% 0; } }
+
+        /* ---- flow graph / UI ---- */
         .flow-line { stroke-dasharray: 6 8; animation: flowdash 900ms linear infinite; }
         @keyframes flowdash { to { stroke-dashoffset: -28; } }
 
         .pulse-node circle { animation: pulsering 1100ms ease-in-out infinite; }
         @keyframes pulsering {
-          0% { filter: drop-shadow(0 0 0px ${COLORS.idle}); }
-          50% { filter: drop-shadow(0 0 6px ${COLORS.idle}); }
+          0%   { filter: drop-shadow(0 0 0px ${COLORS.idle}); }
+          50%  { filter: drop-shadow(0 0 6px ${COLORS.idle}); }
           100% { filter: drop-shadow(0 0 0px ${COLORS.idle}); }
         }
 
-        @keyframes ambientDrift {
-          0%, 100% { transform: translate(-50%, -6%) scale(1); }
-          50% { transform: translate(-50%, -4%) scale(1.06); }
-        }
         @keyframes riseIn {
           from { opacity: 0; transform: translateY(14px); }
-          to { opacity: 1; transform: translateY(0); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         .rise-in { animation: riseIn 620ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
@@ -1137,117 +1315,67 @@ export default function GuardianAgentDemo() {
         textarea:focus { border-color: ${COLORS.idle} !important; box-shadow: 0 0 0 3px ${COLORS.idleSoft}; }
         textarea::placeholder { color: ${COLORS.mutedDim}; }
 
-        .blob { position: absolute; border-radius: 9999px; filter: blur(90px); will-change: transform; }
-        .blob-a {
-          top: -12%; left: 8%; width: 560px; height: 560px;
-          background: radial-gradient(circle, rgba(96,165,250,0.5), transparent 70%);
-          animation: driftA 22s ease-in-out infinite;
-        }
-        .blob-b {
-          top: 18%; right: 4%; width: 480px; height: 480px;
-          background: radial-gradient(circle, rgba(37,99,235,0.4), transparent 70%);
-          animation: driftB 28s ease-in-out infinite;
-        }
-        .blob-c {
-          bottom: -18%; left: 28%; width: 620px; height: 620px;
-          background: radial-gradient(circle, rgba(30,58,110,0.45), transparent 70%);
-          animation: driftC 34s ease-in-out infinite;
-        }
-        @keyframes driftA { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(60px, 40px) scale(1.1); } }
-        @keyframes driftB { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-50px, 30px) scale(1.05); } }
-        @keyframes driftC { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px, -50px) scale(1.08); } }
-
-        .shine-wrap { position: relative; overflow: hidden; border-radius: 22%; }
-        .shine-sweep {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.6) 48%, rgba(255,255,255,0.6) 52%, transparent 70%);
-          background-size: 250% 250%;
-          animation: shineSweep 4.5s ease-in-out infinite;
-          mix-blend-mode: screen;
-        }
-        @keyframes shineSweep {
-          0%   { background-position: 200% 200%; }
-          35%  { background-position: -100% -100%; }
-          100% { background-position: -100% -100%; }
-        }
-        @keyframes textShine {
-          to { background-position: -260% 0; }
-        }
-        @keyframes logoPulse {
-          0%, 100% { opacity: 0.7; transform: scale(1.5); }
-          50% { opacity: 1; transform: scale(1.75); }
-        }
-
         @media (prefers-reduced-motion: reduce) {
-          .rise-in { animation: none; }
-          .blob { animation: none !important; }
-          .shine-sweep { animation: none !important; }
+          .rise-in,
+          .callisto-bg,
+          .callisto-halo,
+          .callisto-core,
+          .callisto-shine,
+          .callisto-dot,
+          .ring-outer,
+          .ring-mid,
+          .pulse-node circle,
+          .flow-line { animation: none !important; }
           [style*="textShine"] { animation: none !important; }
-          [style*="ambientDrift"] { animation: none !important; }
-          [style*="logoPulse"] { animation: none !important; }
         }
       `}</style>
 
-      {/* Ambient background — drifting blurred aurora in the brand blues */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
-        <div className="blob blob-a" />
-        <div className="blob blob-b" />
-        <div className="blob blob-c" />
-      </div>
+      {/* Animated gradient background */}
+      <div aria-hidden="true" className="callisto-bg" />
 
-      <div className="relative mx-auto max-w-3xl">
+      <div className="relative mx-auto max-w-3xl" style={{ zIndex: 1 }}>
         {/* Header */}
         <div className="rise-in text-center">
-          <div className="relative mx-auto flex w-fit items-center justify-center">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 -z-10"
-              style={{
-                background: "radial-gradient(circle, rgba(96,165,250,0.5) 0%, rgba(37,99,235,0.18) 45%, transparent 70%)",
-                filter: "blur(34px)",
-                animation: "logoPulse 6s ease-in-out infinite",
-              }}
-            />
-            <div className="shine-wrap relative">
-              <img
-                src={callistoIcon}
-                alt="Callisto"
-                className="relative block h-auto w-[140px] select-none sm:w-[168px]"
-                draggable="false"
-                style={{ filter: "drop-shadow(0 0 26px rgba(37,99,235,0.55))" }}
-              />
-              <div aria-hidden="true" className="shine-sweep" />
-            </div>
-          </div>
+          <CallistoMark size={220} />
 
           <div
-            className="mt-5 text-[2.75rem] leading-none sm:text-[3.4rem]"
+            className="mt-7 text-[2.5rem] leading-none sm:text-[3.1rem]"
             style={{
               fontFamily: FONT_BRAND,
-              fontWeight: 800,
-              letterSpacing: "0.02em",
+              fontWeight: 600,
+              letterSpacing: "0.22em",
+              paddingLeft: "0.22em",
               background:
                 "linear-gradient(100deg, #C8E0FF 0%, #8FC1FF 22%, #FFFFFF 45%, #4A90D9 68%, #8FC1FF 100%)",
               backgroundSize: "260% 100%",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               color: "transparent",
-              animation: "textShine 6s linear infinite",
+              animation: "textShine 8s linear infinite",
             }}
           >
             CALLISTO
           </div>
 
           <div
-            className="mt-2 text-lg sm:text-xl"
+            className="mt-4 text-[15px] sm:text-base"
+            style={{
+              fontFamily: FONT_MONO,
+              fontWeight: 400,
+              letterSpacing: "0.32em",
+              paddingLeft: "0.32em",
+              color: COLORS.muted,
+              textTransform: "uppercase",
+            }}
+          >
+            Zero-Trust AI Security
+          </div>
+
+          <div
+            className="mt-5 text-lg sm:text-xl"
             style={{ fontFamily: FONT_DISPLAY, fontWeight: 500, letterSpacing: "-0.01em" }}
           >
             Guardian Agent
-          </div>
-          <div className="mt-1.5 text-sm" style={{ color: COLORS.muted }}>
-            Zero-Trust AI Execution Gateway
           </div>
         </div>
 
@@ -1309,7 +1437,7 @@ export default function GuardianAgentDemo() {
           )}
         </div>
 
-        {/* Live pipeline while running (before result lands) */}
+        {/* Live pipeline while running */}
         {running && (
           <div className="rise-in mt-6">
             <ExecutionFlowGraph
