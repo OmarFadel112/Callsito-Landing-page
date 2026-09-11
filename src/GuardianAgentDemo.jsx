@@ -20,13 +20,13 @@ import callistoIcon from "./assets/icon.svg";
 
 /* ------------------------------------------------------------------ */
 /*  DESIGN TOKENS — derived from the Callisto brand mark               */
-/*  Base:    #080F1E  (deep space navy)   Panel: #0E1830  Panel-2: #12203F */
+/*  Base:    #0A1226  (deep space navy)   Panel: #0E1830  Panel-2: #12203F */
 /*  Border:  #1F3563 (steel blue)         Text:  #E8EEFC  Muted:  #7C93C4 */
 /*  Allow:   #34C97F   Blocked: #E5544F   Warn: #E3A73B   Accent: #2F6FEE */
 /* ------------------------------------------------------------------ */
 
 const COLORS = {
-  bg: "#080D1A",
+  bg: "#0A1226",
   panel: "#0E1830",
   panel2: "#122043",
   border: "#20345E",
@@ -483,7 +483,6 @@ function Field({ label, value, mono }) {
 
 function CallistoMark({ size = 200 }) {
   const s = size;
-  const c = s / 2;
 
   return (
     <div className="callisto-mark relative mx-auto" style={{ width: s, height: s }}>
@@ -1220,26 +1219,38 @@ export default function GuardianAgentDemo() {
       style={{ background: COLORS.bg, color: COLORS.text, fontFamily: FONT_DISPLAY }}
     >
       <style>{`
-        /* ---- animated deep-space gradient backdrop ---- */
+        /* ---- animated deep-space gradient + nebula backdrop ---- */
         .callisto-bg {
           position: fixed;
           inset: 0;
           z-index: 0;
           pointer-events: none;
           background:
-            radial-gradient(1200px 800px at 20% 10%, rgba(37,99,235,0.18), transparent 60%),
-            radial-gradient(1000px 700px at 85% 25%, rgba(30,58,110,0.35), transparent 65%),
-            radial-gradient(900px 900px at 50% 100%, rgba(96,165,250,0.14), transparent 70%),
-            linear-gradient(160deg, #070C18 0%, #080F1E 40%, #060B17 100%);
+            radial-gradient(1200px 800px at 20% 10%, rgba(37,99,235,0.20), transparent 60%),
+            radial-gradient(1000px 700px at 85% 25%, rgba(46,74,140,0.35), transparent 65%),
+            radial-gradient(900px 900px at 50% 100%, rgba(96,165,250,0.16), transparent 70%),
+            linear-gradient(160deg, #0A1226 0%, #0B1530 45%, #081020 100%);
           background-size: 200% 200%, 200% 200%, 200% 200%, 100% 100%;
           background-position: 0% 0%, 100% 0%, 50% 100%, 0 0;
-          animation: bgDrift 40s ease-in-out infinite;
+          animation: bgDrift 60s ease-in-out infinite;
         }
         @keyframes bgDrift {
           0%   { background-position: 0% 0%,   100% 0%,   50% 100%, 0 0; }
-          33%  { background-position: 30% 20%, 70% 10%,  40% 80%,  0 0; }
-          66%  { background-position: 20% 40%, 80% 30%,  60% 70%,  0 0; }
+          25%  { background-position: 25% 15%, 75% 10%,  45% 85%,  0 0; }
+          50%  { background-position: 40% 30%, 60% 25%,  55% 75%,  0 0; }
+          75%  { background-position: 20% 45%, 80% 35%,  40% 65%,  0 0; }
           100% { background-position: 0% 0%,   100% 0%,   50% 100%, 0 0; }
+        }
+
+        /* ---- soft grain overlay to break up gradient banding ---- */
+        .callisto-grain {
+          position: fixed;
+          inset: 0;
+          z-index: 1;
+          pointer-events: none;
+          opacity: 0.035;
+          mix-blend-mode: overlay;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
         }
 
         /* ---- callisto brand mark ---- */
@@ -1330,10 +1341,12 @@ export default function GuardianAgentDemo() {
         }
       `}</style>
 
-      {/* Animated gradient background */}
+      {/* Animated gradient + nebula background */}
       <div aria-hidden="true" className="callisto-bg" />
+      {/* Grain overlay */}
+      <div aria-hidden="true" className="callisto-grain" />
 
-      <div className="relative mx-auto max-w-3xl" style={{ zIndex: 1 }}>
+      <div className="relative mx-auto max-w-3xl" style={{ zIndex: 2 }}>
         {/* Header */}
         <div className="rise-in text-center">
           <CallistoMark size={220} />
