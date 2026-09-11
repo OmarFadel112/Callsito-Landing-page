@@ -16,7 +16,7 @@ import {
   ArrowRight,
   CircleSlash,
 } from "lucide-react";
-import callistoLogo from "./assets/logo.svg";
+import callistoIcon from "./assets/icon.svg";
 
 /* ------------------------------------------------------------------ */
 /*  DESIGN TOKENS — derived from the Callisto brand mark               */
@@ -51,6 +51,7 @@ const GRADIENT = {
 };
 
 const FONT_DISPLAY = "'Space Grotesk', 'Segoe UI', sans-serif";
+const FONT_BRAND = "'Unbounded', 'Space Grotesk', sans-serif";
 const FONT_MONO = "'JetBrains Mono', 'IBM Plex Mono', monospace";
 
 /* ------------------------------------------------------------------ */
@@ -1136,43 +1137,113 @@ export default function GuardianAgentDemo() {
         textarea:focus { border-color: ${COLORS.idle} !important; box-shadow: 0 0 0 3px ${COLORS.idleSoft}; }
         textarea::placeholder { color: ${COLORS.mutedDim}; }
 
+        .blob { position: absolute; border-radius: 9999px; filter: blur(90px); will-change: transform; }
+        .blob-a {
+          top: -12%; left: 8%; width: 560px; height: 560px;
+          background: radial-gradient(circle, rgba(96,165,250,0.5), transparent 70%);
+          animation: driftA 22s ease-in-out infinite;
+        }
+        .blob-b {
+          top: 18%; right: 4%; width: 480px; height: 480px;
+          background: radial-gradient(circle, rgba(37,99,235,0.4), transparent 70%);
+          animation: driftB 28s ease-in-out infinite;
+        }
+        .blob-c {
+          bottom: -18%; left: 28%; width: 620px; height: 620px;
+          background: radial-gradient(circle, rgba(30,58,110,0.45), transparent 70%);
+          animation: driftC 34s ease-in-out infinite;
+        }
+        @keyframes driftA { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(60px, 40px) scale(1.1); } }
+        @keyframes driftB { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-50px, 30px) scale(1.05); } }
+        @keyframes driftC { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px, -50px) scale(1.08); } }
+
+        .shine-wrap { position: relative; overflow: hidden; border-radius: 22%; }
+        .shine-sweep {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.6) 48%, rgba(255,255,255,0.6) 52%, transparent 70%);
+          background-size: 250% 250%;
+          animation: shineSweep 4.5s ease-in-out infinite;
+          mix-blend-mode: screen;
+        }
+        @keyframes shineSweep {
+          0%   { background-position: 200% 200%; }
+          35%  { background-position: -100% -100%; }
+          100% { background-position: -100% -100%; }
+        }
+        @keyframes textShine {
+          to { background-position: -260% 0; }
+        }
+        @keyframes logoPulse {
+          0%, 100% { opacity: 0.7; transform: scale(1.5); }
+          50% { opacity: 1; transform: scale(1.75); }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .rise-in { animation: none; }
+          .blob { animation: none !important; }
+          .shine-sweep { animation: none !important; }
+          [style*="textShine"] { animation: none !important; }
           [style*="ambientDrift"] { animation: none !important; }
+          [style*="logoPulse"] { animation: none !important; }
         }
       `}</style>
 
-      {/* Ambient background — deep-space glow + orbit ring, echoing the brand mark */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-0 h-[640px] w-[900px]"
-        style={{
-          transform: "translate(-50%, -6%)",
-          background: "radial-gradient(closest-side, rgba(37,99,235,0.22), rgba(37,99,235,0.06) 55%, transparent 75%)",
-          animation: "ambientDrift 14s ease-in-out infinite",
-        }}
-      />
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[64px] -translate-x-1/2 opacity-[0.35]"
-        width="520"
-        height="520"
-        viewBox="0 0 520 520"
-      >
-        <circle cx="260" cy="200" r="210" fill="none" stroke="#1A3060" strokeWidth="1" />
-        <circle cx="260" cy="200" r="176" fill="none" stroke="#1D4ED8" strokeWidth="0.6" strokeDasharray="2.5 4" opacity="0.5" />
-      </svg>
+      {/* Ambient background — drifting blurred aurora in the brand blues */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
+        <div className="blob blob-a" />
+        <div className="blob blob-b" />
+        <div className="blob blob-c" />
+      </div>
 
       <div className="relative mx-auto max-w-3xl">
         {/* Header */}
         <div className="rise-in text-center">
-          <img
-            src={callistoLogo}
-            alt="Callisto"
-            className="mx-auto h-auto w-[220px] select-none sm:w-[260px]"
-            draggable="false"
-          />
-          <div className="-mt-6 text-2xl font-semibold sm:text-[28px]" style={{ letterSpacing: "-0.01em" }}>
+          <div className="relative mx-auto flex w-fit items-center justify-center">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 -z-10"
+              style={{
+                background: "radial-gradient(circle, rgba(96,165,250,0.5) 0%, rgba(37,99,235,0.18) 45%, transparent 70%)",
+                filter: "blur(34px)",
+                animation: "logoPulse 6s ease-in-out infinite",
+              }}
+            />
+            <div className="shine-wrap relative">
+              <img
+                src={callistoIcon}
+                alt="Callisto"
+                className="relative block h-auto w-[140px] select-none sm:w-[168px]"
+                draggable="false"
+                style={{ filter: "drop-shadow(0 0 26px rgba(37,99,235,0.55))" }}
+              />
+              <div aria-hidden="true" className="shine-sweep" />
+            </div>
+          </div>
+
+          <div
+            className="mt-5 text-[2.75rem] leading-none sm:text-[3.4rem]"
+            style={{
+              fontFamily: FONT_BRAND,
+              fontWeight: 800,
+              letterSpacing: "0.02em",
+              background:
+                "linear-gradient(100deg, #C8E0FF 0%, #8FC1FF 22%, #FFFFFF 45%, #4A90D9 68%, #8FC1FF 100%)",
+              backgroundSize: "260% 100%",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+              animation: "textShine 6s linear infinite",
+            }}
+          >
+            CALLISTO
+          </div>
+
+          <div
+            className="mt-2 text-lg sm:text-xl"
+            style={{ fontFamily: FONT_DISPLAY, fontWeight: 500, letterSpacing: "-0.01em" }}
+          >
             Guardian Agent
           </div>
           <div className="mt-1.5 text-sm" style={{ color: COLORS.muted }}>
