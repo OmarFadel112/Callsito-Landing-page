@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="242 67 196 196">
+<defs>
+  <radialGradient id="sphereGrad" cx="38%" cy="34%" r="75%">
+    <stop offset="0%" stop-color="#2B4A80"/>
+    <stop offset="45%" stop-color="#152C52"/>
+    <stop offset="100%" stop-color="#0B1629"/>
+  </radialGradient>
+  <linearGradient id="crescentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#8FC1FF"/>
+    <stop offset="55%" stop-color="#4A90D9"/>
+    <stop offset="100%" stop-color="#1E3A6E"/>
+  </linearGradient>
+  <mask id="crescentMask">
+    <rect x="242" y="67" width="196" height="196" fill="black"/>
+    <circle cx="340" cy="165" r="58" fill="white"/>
+    <circle cx="360" cy="150" r="53" fill="black"/>
+  </mask>
+</defs>
+<rect x="242" y="67" width="196" height="196" rx="40" fill="#080F1E"/>
+<circle cx="340" cy="165" r="58" fill="url(#sphereGrad)"/>
+<circle cx="340" cy="165" r="58" fill="url(#crescentGrad)" mask="url(#crescentMask)" opacity="0.9"/>
+<circle cx="340" cy="165" r="57.3" fill="none" stroke="#9FCBFF" stroke-width="1.4" opacity="0.55" mask="url(#crescentMask)"/>
+<circle cx="340" cy="165" r="5.5" fill="#0B1629" stroke="#3B82F6" stroke-width="1.4"/>
+<circle cx="340" cy="165" r="2.5" fill="#60A5FA"/>
+</svg>

@@ -16,32 +16,38 @@ import {
   ArrowRight,
   CircleSlash,
 } from "lucide-react";
+import callistoLogo from "./assets/logo.svg";
 
 /* ------------------------------------------------------------------ */
-/*  DESIGN TOKENS                                                     */
-/*  Base:    #10131A  (ink)      Panel: #171B24   Panel-2: #1D2230    */
-/*  Border:  #262C3A             Text:  #E7E9EE   Muted:  #8991A3     */
-/*  Allow:   #34C97F   Blocked: #E5544F   Warn: #E3A73B   Idle: #4C6EF5 */
+/*  DESIGN TOKENS — derived from the Callisto brand mark               */
+/*  Base:    #080F1E  (deep space navy)   Panel: #0E1830  Panel-2: #12203F */
+/*  Border:  #1F3563 (steel blue)         Text:  #E8EEFC  Muted:  #7C93C4 */
+/*  Allow:   #34C97F   Blocked: #E5544F   Warn: #E3A73B   Accent: #2F6FEE */
 /* ------------------------------------------------------------------ */
 
 const COLORS = {
-  bg: "#0F1218",
-  panel: "#161A23",
-  panel2: "#1C212C",
-  border: "#262C3A",
-  borderSoft: "#1F2430",
-  text: "#E7E9EE",
-  muted: "#8B93A5",
-  mutedDim: "#565D6E",
+  bg: "#080D1A",
+  panel: "#0E1830",
+  panel2: "#122043",
+  border: "#20345E",
+  borderSoft: "#182747",
+  text: "#E8EEFC",
+  muted: "#7E96C6",
+  mutedDim: "#4B5F8C",
   allow: "#34C97F",
   allowSoft: "rgba(52,201,127,0.12)",
   blocked: "#E5544F",
   blockedSoft: "rgba(229,84,79,0.12)",
   warn: "#E3A73B",
   warnSoft: "rgba(227,167,59,0.12)",
-  idle: "#5B7CFA",
-  idleSoft: "rgba(91,124,250,0.12)",
-  notReached: "#3A4152",
+  idle: "#3B82F6",
+  idleSoft: "rgba(59,130,246,0.14)",
+  notReached: "#28345A",
+};
+
+const GRADIENT = {
+  crescent: "linear-gradient(135deg, #8FC1FF 0%, #4A90D9 55%, #1E3A6E 100%)",
+  glow: "radial-gradient(circle, rgba(37,99,235,0.35) 0%, rgba(37,99,235,0) 70%)",
 };
 
 const FONT_DISPLAY = "'Space Grotesk', 'Segoe UI', sans-serif";
@@ -999,7 +1005,7 @@ function ScenarioSuggestions({ onPick, activeKey }) {
             <button
               key={s.key}
               onClick={() => onPick(s)}
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+              className="chip flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
               style={{
                 background: active ? toneSoft(s.tone) : COLORS.panel2,
                 border: `1px solid ${active ? color : COLORS.border}`,
@@ -1098,12 +1104,10 @@ export default function GuardianAgentDemo() {
 
   return (
     <div
-      className="min-h-screen w-full px-4 py-14 sm:px-8"
+      className="relative min-h-screen w-full overflow-hidden px-4 py-14 sm:px-8"
       style={{ background: COLORS.bg, color: COLORS.text, fontFamily: FONT_DISPLAY }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
         .flow-line { stroke-dasharray: 6 8; animation: flowdash 900ms linear infinite; }
         @keyframes flowdash { to { stroke-dashoffset: -28; } }
 
@@ -1114,25 +1118,77 @@ export default function GuardianAgentDemo() {
           100% { filter: drop-shadow(0 0 0px ${COLORS.idle}); }
         }
 
+        @keyframes ambientDrift {
+          0%, 100% { transform: translate(-50%, -6%) scale(1); }
+          50% { transform: translate(-50%, -4%) scale(1.06); }
+        }
+        @keyframes riseIn {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .rise-in { animation: riseIn 620ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        button, select, .chip { transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease, opacity 160ms ease; }
+        .cta-run:hover:not(:disabled) { box-shadow: 0 0 0 1px rgba(143,193,255,0.5), 0 8px 24px -8px rgba(37,99,235,0.65); }
+        .chip:hover { border-color: ${COLORS.idle} !important; }
         select { background-image: none; }
+        textarea { transition: border-color 160ms ease, box-shadow 160ms ease; }
+        textarea:focus { border-color: ${COLORS.idle} !important; box-shadow: 0 0 0 3px ${COLORS.idleSoft}; }
         textarea::placeholder { color: ${COLORS.mutedDim}; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .rise-in { animation: none; }
+          [style*="ambientDrift"] { animation: none !important; }
+        }
       `}</style>
 
-      <div className="mx-auto max-w-3xl">
+      {/* Ambient background — deep-space glow + orbit ring, echoing the brand mark */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-0 h-[640px] w-[900px]"
+        style={{
+          transform: "translate(-50%, -6%)",
+          background: "radial-gradient(closest-side, rgba(37,99,235,0.22), rgba(37,99,235,0.06) 55%, transparent 75%)",
+          animation: "ambientDrift 14s ease-in-out infinite",
+        }}
+      />
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-[64px] -translate-x-1/2 opacity-[0.35]"
+        width="520"
+        height="520"
+        viewBox="0 0 520 520"
+      >
+        <circle cx="260" cy="200" r="210" fill="none" stroke="#1A3060" strokeWidth="1" />
+        <circle cx="260" cy="200" r="176" fill="none" stroke="#1D4ED8" strokeWidth="0.6" strokeDasharray="2.5 4" opacity="0.5" />
+      </svg>
+
+      <div className="relative mx-auto max-w-3xl">
         {/* Header */}
-        <div className="text-center">
-          <div className="text-3xl font-semibold" style={{ letterSpacing: "-0.01em" }}>
+        <div className="rise-in text-center">
+          <img
+            src={callistoLogo}
+            alt="Callisto"
+            className="mx-auto h-auto w-[220px] select-none sm:w-[260px]"
+            draggable="false"
+          />
+          <div className="-mt-6 text-2xl font-semibold sm:text-[28px]" style={{ letterSpacing: "-0.01em" }}>
             Guardian Agent
           </div>
-          <div className="mt-2 text-sm" style={{ color: COLORS.muted }}>
+          <div className="mt-1.5 text-sm" style={{ color: COLORS.muted }}>
             Zero-Trust AI Execution Gateway
           </div>
         </div>
 
         {/* Composer */}
         <div
-          className="mt-10 rounded-2xl p-6"
-          style={{ background: COLORS.panel, border: `1px solid ${COLORS.border}` }}
+          className="rise-in mt-10 rounded-2xl p-6"
+          style={{
+            background: `linear-gradient(180deg, ${COLORS.panel} 0%, ${COLORS.panel2} 100%)`,
+            border: `1px solid ${COLORS.border}`,
+            boxShadow: "0 20px 60px -30px rgba(0,0,0,0.6)",
+            animationDelay: "80ms",
+          }}
         >
           <AgentSelector agents={AGENTS} value={agentId} onChange={setAgentId} />
 
@@ -1167,8 +1223,8 @@ export default function GuardianAgentDemo() {
             <button
               onClick={runAgent}
               disabled={running}
-              className="rounded-xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
-              style={{ background: COLORS.idle, color: "#0B0D12" }}
+              className="cta-run rounded-xl px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
+              style={{ background: GRADIENT.crescent, color: "#061024" }}
             >
               {running ? "Running…" : "Run Agent"}
             </button>
@@ -1184,7 +1240,7 @@ export default function GuardianAgentDemo() {
 
         {/* Live pipeline while running (before result lands) */}
         {running && (
-          <div className="mt-6">
+          <div className="rise-in mt-6">
             <ExecutionFlowGraph
               agent={agent}
               tool={toolMeta.tool}
@@ -1197,7 +1253,7 @@ export default function GuardianAgentDemo() {
 
         {/* Result */}
         {result && !running && (
-          <div className="mt-8">
+          <div className="rise-in mt-8">
             <SimplifiedResultView
               result={result}
               showDetails={showDetails}
@@ -1213,6 +1269,10 @@ export default function GuardianAgentDemo() {
             )}
           </div>
         )}
+
+        <div className="mt-14 text-center text-xs" style={{ color: COLORS.mutedDim }}>
+          Fully local mockup — every decision above runs in your browser, nothing leaves this page.
+        </div>
       </div>
     </div>
   );
